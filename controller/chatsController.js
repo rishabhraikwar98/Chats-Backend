@@ -4,8 +4,8 @@ const getAllChats = async (req, res) => {
   try {
     let chats = await Chat.find({ members: req.user._id })
       .populate("members", "name email avatar")
-      .sort({ "messages.createdAt": -1 })
-      .select("-__v -messages");
+      .select("-__v -messages -createdAt -updatedAt")
+      .sort({ "messages.createdAt": -1, createdAt: -1, updatedAt: -1 });
     chats = chats.map((chat) => {
       chat = chat.toObject();
       chat.members = chat.members.filter(
@@ -20,7 +20,7 @@ const getAllChats = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error!" });
   }
 };
-const getMessages = async (rew, res) => {
+const getMessages = async (req, res) => {
   try {
     const messages = await Message.find();
     return res.status(200).json(messages);

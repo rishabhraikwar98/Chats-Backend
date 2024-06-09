@@ -15,6 +15,5 @@ app.use("/api/v1",rootRouter)
 app.get("/", (req, res) => {
   res.send("Hello");
 });
-const port = process.env.PORT || 5000;
-app.listen(port, () => console.log(`Server listening on ${port}`));
+
 module.exports = app;

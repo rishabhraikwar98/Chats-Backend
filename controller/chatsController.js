@@ -3,9 +3,9 @@ const Message = require("../model/messageSchema");
 const getAllChats = async (req, res) => {
   try {
     let chats = await Chat.find({ members: req.user._id })
-      .populate("members", "name email avatar")
+      .populate("members", "name email avatar online")
       .select("-__v -messages -createdAt -updatedAt")
-      .sort({ "messages.createdAt": -1, createdAt: -1, updatedAt: -1 });
+      .sort({ "messages.createdAt": -1, updatedAt: -1 });
     chats = chats.map((chat) => {
       chat = chat.toObject();
       chat.members = chat.members.filter(
@@ -21,8 +21,9 @@ const getAllChats = async (req, res) => {
   }
 };
 const getMessages = async (req, res) => {
+  const {chatId} = req.params
   try {
-    const messages = await Message.find();
+    const messages = await Message.find({chat:chatId}).select("-updatedAt -__v");
     return res.status(200).json(messages);
   } catch (error) {
     return res.status(500).json({ message: "Internal Server Error!" });

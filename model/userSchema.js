@@ -33,6 +33,14 @@ const userSchema = new mongoose.Schema({
     maxLength: 300,
     default: "",
   },
+  socketId:{
+    type: String,
+    default: "",
+  },
+  online:{
+    type: Boolean,
+    default: false,
+  }
 },{timestamps: true});
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {

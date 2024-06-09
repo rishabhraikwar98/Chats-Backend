@@ -14,6 +14,7 @@ const userRegister = async (req, res) => {
     return res.status(201).json({
       message: "Signup successfull !",
       access_token: token,
+      uid:newUser._id
     });
   } catch (error) {
     if (error.code === 11000) {
@@ -37,7 +38,7 @@ const userLogin = async (req, res) => {
       });
       res
         .status(200)
-        .json({ message: "Login successfull!", access_token: token });
+        .json({ message: "Login successfull!", access_token: token,uid: user._id });
     } else {
       return res.status(400).json({ message: "Incorrect password!" });
     }

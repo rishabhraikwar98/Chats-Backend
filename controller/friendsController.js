@@ -1,6 +1,7 @@
 const FriendRequest = require("../model/friendRequestSchema");
 const User = require("../model/userSchema");
 const Chat = require("../model/chatSchema");
+const Message = require("../model/messageSchema")
 const getMyFriends = async (req, res) => {
   try {
     const myProfile = await User.findById(req.user._id).populate({
@@ -13,10 +14,10 @@ const getMyFriends = async (req, res) => {
   }
 };
 const removeFriend = async (req, res) => {
-  const {userId} = req.params
+  const { userId } = req.params;
   try {
     const myProfile = await User.findByIdAndUpdate(req.user._id, {
-      $pull: { friends: userId},
+      $pull: { friends: userId },
     });
     const friendProfile = await User.findByIdAndUpdate(userId, {
       $pull: { friends: req.user._id },
@@ -24,6 +25,7 @@ const removeFriend = async (req, res) => {
     const chat = await Chat.findOneAndDelete({
       members: { $all: [req.user._id, userId] },
     });
+    await Message.deleteMany({chat:chat});
     if (myProfile && friendProfile && chat) {
       return res.status(200).json({ message: "Friend Removed!" });
     }
@@ -33,7 +35,7 @@ const removeFriend = async (req, res) => {
   }
 };
 const sendFriendRequest = async (req, res) => {
-  const {userId} = req.params
+  const { userId } = req.params;
   const recieverProfile = await User.findById(userId);
   const myProfile = await User.findById(req.user._id);
   try {
@@ -60,8 +62,26 @@ const sendFriendRequest = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error!" });
   }
 };
+const cancelFriendRequest = async (req, res) => {
+  const { userId } = req.params;
+  const recieverProfile = await User.findById(userId);
+  const myProfile = await User.findById(req.user._id);
+  try {
+    const existingRequest = await FriendRequest.findOne({
+      sender: myProfile._id,
+      reciever: recieverProfile._id,
+    });
+    if (!existingRequest) {
+      return res.status(404).send({ message: "Friend request not sent!" });
+    }
+    await FriendRequest.findByIdAndDelete(existingRequest._id)
+    return res.status(200).json({ message: "cancelled friend request!" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error!" });
+  }
+};
 const acceptFriendRequest = async (req, res) => {
-  const {reqId} = req.params
+  const { reqId } = req.params;
   try {
     const existingRequest = await FriendRequest.findById(reqId);
     if (!existingRequest) {
@@ -84,7 +104,7 @@ const acceptFriendRequest = async (req, res) => {
   }
 };
 const deleteFriendRequest = async (req, res) => {
-  const {reqId} = req.params;
+  const { reqId } = req.params;
   try {
     const existingRequest = await FriendRequest.findById(reqId);
     if (!existingRequest) {
@@ -104,8 +124,9 @@ const getFriendRequests = async (req, res) => {
       .select("-reciever -__v -createdAt -updatedAt")
       .populate({
         path: "sender",
-        select: ["name", "email", "avatar"],
-      }).sort({"createdAt":-1})
+        select: "name email avatar",
+      })
+      .sort({ createdAt: -1 });
     return res.status(200).json(allRequests);
   } catch (error) {
     return res.status(500).json({ message: "Internal Server Error!" });
@@ -116,6 +137,7 @@ module.exports = {
   getMyFriends,
   removeFriend,
   sendFriendRequest,
+  cancelFriendRequest,
   acceptFriendRequest,
   deleteFriendRequest,
   getFriendRequests,

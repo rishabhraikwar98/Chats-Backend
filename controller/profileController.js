@@ -27,17 +27,16 @@ const searchProfile = async (req, res) => {
   const { query } = req.query;
   try {
     if (!query.trim()) {
-      res.status(400).json({ message: "Empty query!" });
+      return res.status(400).json({ message: "Empty query!" });
     }
     const searchCriteria = {
       _id: { $ne: req.user._id },
       $or: [
         { name: { $regex: query, $options: "i" } },
-        { email: { $regex: query, $options: "i" } },
       ],
     };
     let results = await User.find(searchCriteria).select(
-      "-friends -password -__v -createdAt -updatedAt"
+      "name email about avatar"
     );
     const myProfile = await User.findById(req.user._id).select("friends");
     results = results.map((profile) => {
@@ -49,14 +48,14 @@ const searchProfile = async (req, res) => {
     });
     return res.status(200).json(results);
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error!" });
+    res.status(500).json({ message: "Internal Server Error!" });
   }
 };
 const viewProfile = async (req, res) => {
   const { userId } = req.params;
   try {
     const profile = await User.findById(userId).select(
-      "-__v -friends -createdAt -updatedAt -password"
+      "name email about avatar"
     );
     if (!profile) {
       return res.status(404).json({ message: "Profile Not Found!" });

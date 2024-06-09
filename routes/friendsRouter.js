@@ -6,9 +6,11 @@ const {
   getFriendRequests,
   deleteFriendRequest,
   removeFriend,
+  cancelFriendRequest
 } = require("../controller/friendsController");
 const router = express.Router();
 router.route("/new_request/:userId").post(sendFriendRequest);
+router.route("/cancel_request/:userId").post(cancelFriendRequest);
 router
   .route("/request/:reqId")
   .post(acceptFriendRequest)

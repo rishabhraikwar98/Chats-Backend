@@ -13,12 +13,12 @@ const io = new Server(server, {
 io.on("connection", async (socket) => {
   const { userId } = socket.handshake.query;
   const socketId = socket.id;
-  console.log("Socket connection: ", socketId, userId);
+  //console.log("Socket connection: ", socketId, userId);
   if (userId) {
     try {
       await User.findByIdAndUpdate(userId, { socketId: socketId,online:true });
     } catch (error) {
-      console.error(error.message);
+      //console.error(error.message);
     }
   }
 
@@ -30,6 +30,7 @@ io.on("connection", async (socket) => {
     await newMessage.save();
     const existingChat = await Chat.findById(chat);
     existingChat.messages.push(newMessage._id);
+    existingChat.lastMessage = newMessage._id;
     await existingChat.save();
 
     const response = await Message.findById(newMessage._id).select(
@@ -42,21 +43,24 @@ io.on("connection", async (socket) => {
       io.to(fromUser.socketId).emit("new-message", response);
     }
   });
-  // socket.on("typing",(data)=>{
-  //   const {fromUser,chatId} = data
-  //   io.emit("typing-started",fromUser,chatId);
-  // })
-  // socket.on("end-typing",(data)=>{
-  //   const {fromUser,chatId} = data
-  //   io.emit("typing-stopped",fromUser,chatId)
-  // })
+  socket.on("friend-request",data=>{
+    io.emit("new-friend-request",data)
+  })
+  socket.on("typing",(data)=>{
+    const {chat,user} = data
+    io.emit("user-typing",data)
+  })
+  socket.on("stopped-typing",(data)=>{
+    const {chat,user} = data
+    io.emit("user-typing-stopped",data)
+  })
   socket.on("end", async () => {
     console.log("Closing socket");
     socket.disconnect(0);
   });
 
   socket.on("disconnect", async () => {
-    console.log("Socket disconnected: ", socketId);
+    // console.log("Socket disconnected: ", socketId);
     if (userId) {
       try {
         await User.findByIdAndUpdate(userId, { socketId: null,online:false });

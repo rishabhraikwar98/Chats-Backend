@@ -2,7 +2,7 @@ const Chat = require("../model/chatSchema");
 const Message = require("../model/messageSchema");
 const getAllChats = async (req, res) => {
   try {
-    let chats = await Chat.find({ members: req.user._id })
+    let chats = await Chat.find({ members: req.user._id }).populate("lastMessage","from to createdAt content -_id")
       .populate("members", "name email avatar online")
       .select("-__v -messages -createdAt -updatedAt")
       .sort({ "messages.createdAt": -1, updatedAt: -1 });

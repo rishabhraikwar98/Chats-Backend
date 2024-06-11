@@ -10,22 +10,22 @@ const io = new Server(server, {
     origin: process.env.BASE_URL,
   },
 });
+const userSockets = {};
+//to store user Id and socket
 io.on("connection", async (socket) => {
   const { userId } = socket.handshake.query;
   const socketId = socket.id;
-  //console.log("Socket connection: ", socketId, userId);
   if (userId) {
     try {
-      await User.findByIdAndUpdate(userId, { socketId: socketId,online:true });
+      await User.findByIdAndUpdate(userId, { online: true });
+      userSockets[userId] = socketId;
     } catch (error) {
       //console.error(error.message);
     }
   }
-
+  //console.log(userSockets)
   socket.on("text-message", async (data) => {
     const { chat, from, to, content } = data;
-    const toUser = await User.findById(to);
-    const fromUser = await User.findById(from);
     const newMessage = new Message({ chat, from, to, content });
     await newMessage.save();
     const existingChat = await Chat.findById(chat);
@@ -36,34 +36,45 @@ io.on("connection", async (socket) => {
     const response = await Message.findById(newMessage._id).select(
       "-updatedAt -__v"
     );
-    if (toUser.socketId) {
-      io.to(toUser.socketId).emit("new-message", response);
+    if (userSockets[from]) {
+      io.to(userSockets[from]).emit("new-message", response);
     }
-    if (fromUser.socketId) {
-      io.to(fromUser.socketId).emit("new-message", response);
+    if (userSockets[to]) {
+      io.to(userSockets[to]).emit("new-message", response);
     }
   });
-  socket.on("friend-request",data=>{
-    io.emit("new-friend-request",data)
-  })
-  socket.on("typing",(data)=>{
-    const {chat,user} = data
-    io.emit("user-typing",data)
-  })
-  socket.on("stopped-typing",(data)=>{
-    const {chat,user} = data
-    io.emit("user-typing-stopped",data)
-  })
+  socket.on("friend-request", async (data) => {
+    const { to, from } = data;
+    const user = await User.findById(from).select("name");
+    if (userSockets[to]) {
+      io.to(userSockets[to]).emit("new-friend-request", {
+        message: `${user.name} sent you a friend request!`,
+      });
+    }
+  });
+  socket.on("typing", (data) => {
+    const { to } = data;
+    if (userSockets[to]) {
+      io.to(userSockets[to]).emit("user-typing", data);
+    }
+  });
+  socket.on("stopped-typing", (data) => {
+    const { to } = data;
+    if (userSockets[to]) {
+      io.to(userSockets[to]).emit("user-typing-stopped", data);
+    }
+  });
   socket.on("end", async () => {
-    console.log("Closing socket");
+    //console.log("Closing socket");
     socket.disconnect(0);
   });
 
   socket.on("disconnect", async () => {
-    // console.log("Socket disconnected: ", socketId);
     if (userId) {
       try {
-        await User.findByIdAndUpdate(userId, { socketId: null,online:false });
+        delete userSockets[userId];
+        await User.findByIdAndUpdate(userId, { online: false });
+        //console.log(userSockets)
       } catch (error) {}
     }
   });

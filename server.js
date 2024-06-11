@@ -8,6 +8,9 @@ const Chat = require("./model/chatSchema");
 const io = new Server(server, {
   cors: {
     origin: process.env.BASE_URL,
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    allowedHeaders: ["Authorization"],
+    credentials: true
   },
 });
 const userSockets = {};

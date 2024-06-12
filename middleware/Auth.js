@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 
 const idFromToken = (req) => {
   const token = req.headers.authorization.split(" ")[1];
-  const id = jwt.verify(token, process.env.jwt_secret).data;
+  const id = jwt.verify(token, process.env.JWT_SECRET).data;
   return id;
 };
 const authMiddleware = async (req, res, next) => {
@@ -13,10 +13,12 @@ const authMiddleware = async (req, res, next) => {
     if (user) {
       req.user = user;
       next();
+    }else{
+      return res.status(401).json({message:"Unauthorized to access!"});
     }
   } catch (error) {
-    res.status(401).json({
-      message: "Unauthorized!",
+    res.status(500).json({
+      message: "Internal server error!",
     });
   }
 };

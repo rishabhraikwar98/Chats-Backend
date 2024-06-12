@@ -7,8 +7,7 @@ const Message = require("./model/messageSchema");
 const Chat = require("./model/chatSchema");
 const io = new Server(server, {
   cors: {
-    origin: process.env.BASE_URL,
-    methods: ["GET", "POST", "PATCH", "DELETE"],
+    origin:"http://localhost:3000",
     allowedHeaders: ["Authorization"],
     credentials: true
   },

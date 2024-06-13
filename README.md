@@ -1,23 +1,17 @@
 
 # Chats (Backend)
 
-A Simple Node.js and Socket.IO Backend for realtime chat application.
+This project is the backend of a real-time chat application built with MERN Stack and Socket.IO . It provides a robust and scalable server-side solution for handling authentication, real-time messaging, and dynamic user status updates, friend requests etc.
 
-## Environment Variables
+## Features
 
-To run this project, you will need to add the following environment variables to your .env file
+- Real-time Messaging: Facilitates instant messaging between users using Socket.IO.
+- Authentication: Secure user authentication using JWT.
+- User Management: Handles user registration, login, and profile updates.
+- Dynamic Online Status: Updates and provides users' online status in real-time.
+- Message Storage: Persists messages and chat history using MongoDB.
+- Notifications: Sends real-time notifications for new messages and friend requests.
 
-`MONGO_URI`
-
-`BASE_URL`
-
-`JWT_SECRET`
-
-`CLOUDINARY_CLOUD_NAME`
-
-`CLOUDINARY_API_SECRET`
-
-`CLOUDINARY_API_KEY`
 
 ## Run Locally
 
@@ -46,15 +40,35 @@ Start the server
 ```
 
 
+## Environment Variables
+
+To run this project, you will need to add the following environment variables to your .env file
+
+`MONGO_URI`
+
+`BASE_URL` (Frontend)
+
+`JWT_SECRET`
+
+`CLOUDINARY_CLOUD_NAME`
+
+`CLOUDINARY_API_SECRET`
+
+`CLOUDINARY_API_KEY`
 
 
-## Tech Stack
-Node, Express, JWT, Bcrypt, MongoDB, Mongoose, Socket.IO, Zod, Multer, Cloudinary.
+## Tech Used
 
-
+- Node.js: For server-side JavaScript runtime.
+- Express.js: For creating the server and handling API routes.
+- MongoDB: For database management.
+- Mongoose: For MongoDB object modeling.
+- Socket.IO: For real-time communication.
+- JWT: For secure user authentication.
+- Zod: For form validation.
 ## Related
 
-Frontend Repository
+Here is Backend Repository
 
 [Chats](https://github.com/rishabhraikwar98/chats)
 

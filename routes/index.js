@@ -14,5 +14,5 @@ router.use("/auth", authRouter);
 router.use("/profile",authMiddleware,profileRouter)
 router.use("/friends",authMiddleware,friendsRouter)
 router.use("/chat",authMiddleware,chatRouter)
-router.use("/upload",uploadMiddleware,authMiddleware,imageRouter)
+router.use("/upload",uploadMiddleware,imageRouter)
 module.exports = router

@@ -18,9 +18,9 @@ const updateMyProfile = async (req, res) => {
       about,
       avatar,
     });
-    res.status(200).json({ message: "Profile updated!" });
+    return res.status(200).json({ message: "Profile updated!" });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    return res.status(500).json({ message: "Internal Server Error!" });
   }
 };
 const searchProfile = async (req, res) => {

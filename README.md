@@ -68,7 +68,7 @@ To run this project, you will need to add the following environment variables to
 - Zod: For form validation.
 ## Related
 
-Here is Backend Repository
+Frontend Repo
 
 [Chats](https://github.com/rishabhraikwar98/chats)
 

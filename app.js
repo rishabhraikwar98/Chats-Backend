@@ -6,8 +6,7 @@ const bodyParser = require("body-parser")
 const rootRouter = require("./routes/index")
 const app = express();
 app.use(cors({
-  //origin:process.env.BASE_URL,
-  origin: "*"
+  origin:process.env.BASE_URL,
 }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
